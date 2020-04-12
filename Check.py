@@ -151,7 +151,6 @@ class DFA():
 		print('')
 
 def main():
-
 	print("DFA functionality program")
 	user_choice = None
 	while user_choice == None:
@@ -288,10 +287,13 @@ def combine(I_or_U, DFAs):
 
 
 
-
-
-
-
-
 if __name__ == '__main__':
-	main()
+	if __debug__ == False:
+		main()
+	else:
+		machine_one,machine_two = get_machine_info("D1","D2")
+		DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
+		task_three(DFAs)
+
+
+		
