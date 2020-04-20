@@ -4,8 +4,6 @@
 
 
 
-
-
 import copy
 
 def get_machine_info(filename1, filename2):
@@ -96,7 +94,6 @@ class DFA():
 	def invert_accept_states(self):
 		for node in self.nodes:
 			node.accept = not node.accept
-
 		self.setup()
 
 	def setup(self):
@@ -127,7 +124,7 @@ class DFA():
 			else:
 				current_node = current_node.b_t()
 		if current_node in self.accept:
-			print('Valid String')
+			print(test_string,'Valid String')
 
 	def label_list(self):
 		outString = ''
@@ -150,7 +147,7 @@ class DFA():
 		print(' '.join(self.accept_labels))
 		print('')
 
-def main():
+def menu():
 	print("DFA functionality program")
 	user_choice = None
 	while user_choice == None:
@@ -196,6 +193,7 @@ def main():
 	if user_choice == 'C':
 		task_three(DFAs)
 
+
 	# DFAs[0].test('aba')
 	# DFAs[1].test('abbbbbbbba')
 
@@ -214,7 +212,7 @@ def task_one(DFAs):
 
 
 def task_two(DFAs):
-	Intersecion = combine('I', DFAs)
+	Intersection = combine('I', DFAs)
 	print("Machine for the Intersection of the FA's:")
 	Intersection.encode_print()
 
@@ -269,12 +267,24 @@ def combine(I_or_U, DFAs):
 
 
 
+def main():
+	machine_one,machine_two = get_machine_info("D1","D2")
+	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
+	for FA in DFAs:
+		FA.show()
+	new = combine('U',DFAs)
+	new.show()
+	new2 = combine('U',[DFAs[0],new])
+	new2.show()
 
 
 
 
-
-
+def test():
+	machine_one,machine_two = get_machine_info("D1","D2")
+	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
+	new = combine('I',DFAs)
+	new.test('bababababbabbabbbbabbababaaabbaab')
 
 
 
@@ -288,12 +298,8 @@ def combine(I_or_U, DFAs):
 
 
 if __name__ == '__main__':
-	if __debug__ == False:
-		main()
-	else:
-		machine_one,machine_two = get_machine_info("D1","D2")
-		DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
-		task_three(DFAs)
-
+	# main()
+	menu()
+	# test()
 
 		
