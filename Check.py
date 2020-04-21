@@ -1,9 +1,3 @@
-
-# Questions about the code to email to the professor
-#  1. When finding the intersection do we assume both FA's will use the same alphabet.
-
-
-
 import copy
 
 def get_machine_info(filename1, filename2):
@@ -20,7 +14,8 @@ def create_DFA(machine_info):
 	num_nodes    = int(machine_info[0])
 	node_labels  = machine_info[1].split(' ')
 	start_state  = machine_info[-3]
-	accept_nodes = machine_info[-1].split(' ')
+	if machine_info[-2] != 0:
+		accept_nodes = machine_info[-1].split(' ')
 	alphabet 	 = machine_info[3]
 
 	FA = []
@@ -84,6 +79,9 @@ class DFA():
 		for i in self.nodes:
 			if i.label == to_find_label:
 				return i
+
+	def get_start(self):
+		return self.start
 
 	def get_all_nodes(self):
 		return self.nodes
@@ -264,10 +262,7 @@ def combine(I_or_U, DFAs):
 	return Combined_FA
 
 
-
-
-
-def main():
+def current_testing():
 	machine_one,machine_two = get_machine_info("D1","D2")
 	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
 	for FA in DFAs:
@@ -278,15 +273,47 @@ def main():
 	new2.show()
 
 
+# This whole section needs rewiritng
+# Note to self just graph traversal worry about string later
+# Just work on getting the depth / bredth seacrh wrokign first
+
+# def non_emptyness():
+# 	machine_one,machine_two = get_machine_info("D1","D2")
+# 	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
+
+# 	FA = combine('I',DFAs)
+
+# 	nodes = [FA.get_start()]
+# 	visited = []
+
+# 	while len(nodes) != 0:
+# 		node = nodes.pop(0)
+# 		a,b = node.get_transistions()
+# 		print(a.get_label(),b.get_label())
+
+# 		if (a.is_accept() or b.is_accept()):
+# 			return True
+# 		print('not accept states')
+
+# 		if a not in visited:
+# 			visited.append(a)
+# 			nodes.append(a)
+# 		if b not in visited:
+# 			nodes.append(b)
+# 			visited.append(b)
+# 		d_print('nodes',nodes)
+# 		d_print('visit',visited)
+# 	print()
+
+# 	for i in visited:
+# 		print(i.get_label())
 
 
-def test():
-	machine_one,machine_two = get_machine_info("D1","D2")
-	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
-	new = combine('I',DFAs)
-	new.test('bababababbabbabbbbabbababaaabbaab')
-
-
+# def d_print(label,a_list):
+# 	outString = ''
+# 	for i in a_list:
+# 		outString += i.get_label() +' '
+# 	print(label+': '+outString)
 
 
 
@@ -298,8 +325,8 @@ def test():
 
 
 if __name__ == '__main__':
-	# main()
-	menu()
-	# test()
+	# current_testing()
+	# menu()
+	print(non_emptyness())
 
 		
