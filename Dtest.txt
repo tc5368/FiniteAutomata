@@ -1,9 +1,13 @@
-2
-A B
+6
+AX BZ AY BY AZ X
 2
 a b
-B B
-B B
-A
+BZ AY
+AY X
+BZ AZ
+AZ BZ
+BY AZ
+X X
+AX
 1
-B
+X

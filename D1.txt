@@ -6,4 +6,4 @@ B A
 A B
 A
 1
-C
+A

@@ -29,7 +29,8 @@ def create_DFA(machine_info):
 
 	for i in range(num_nodes):
 		a,b  = transistions[i].split(' ')
-		FA.get_node(node_labels[i]).set_transistions([FA.get_node(transistions[i][0]),FA.get_node(transistions[i][2])])
+		FA.get_node(node_labels[i]).set_transistions([FA.get_node(a),FA.get_node(b)])
+
 	FA.setup()
 	return FA
 
@@ -41,31 +42,49 @@ class node():
 		self.accept        = accept
 		self.a_transistion = None
 		self.b_transistion = None
+		self.reachable     = False
 	
+
 	def set_transistions(self,transistions):
 		self.a_transistion = transistions[0]
 		self.b_transistion = transistions[1]
 
+
 	def a_t(self):
 		return self.a_transistion
+
 
 	def b_t(self):
 		return self.b_transistion
 
+
 	def show(self):
 		print(self.label, self.start, self.accept, self.a_transistion.get_label(), self.b_transistion.get_label())
+
 
 	def get_label(self):
 		return self.label
 
+
 	def get_transistions(self):
 		return self.a_transistion, self.b_transistion
+
 
 	def is_start(self):
 		return self.start
 
+
 	def is_accept(self):
 		return self.accept
+
+
+	def is_reachable(self):
+		return self.reachable
+
+
+	def found(self):
+		self.reachable = True
+
 
 class DFA():
 	def __init__(self, nodes, alphabet):
@@ -75,24 +94,47 @@ class DFA():
 		self.accept_labels = []
 		self.alphabet      = alphabet
 
+
+	def delete(self,node):
+		self.nodes.remove(node)
+		if node in self.accept:
+			self.accept.remove(node)
+			self.accept_labels.remove(node.get_label())
+
+
 	def get_node(self,to_find_label):
 		for i in self.nodes:
 			if i.label == to_find_label:
 				return i
 
+
 	def get_start(self):
 		return self.start
+
 
 	def get_all_nodes(self):
 		return self.nodes
 
+
 	def get_alphabet(self):
 		return self.alphabet
+
+
+	def get_accept_states(self):
+		return self.accept
+
+
+	def set_accept(self,node):
+		node.accept = True
+		self.accept.append(node)
+		self.accept_labels.append(node.get_label())
+
 
 	def invert_accept_states(self):
 		for node in self.nodes:
 			node.accept = not node.accept
 		self.setup()
+
 
 	def setup(self):
 		self.accept = []
@@ -103,8 +145,7 @@ class DFA():
 				self.accept_labels.append(i.get_label())
 			if i.start:
 				self.start = i
-			for i in self.nodes:
-				a,b = i.get_transistions()
+
 
 	def show(self):
 		print('This FA has %s nodes with a start node of %s' %(len(self.nodes),self.start.get_label()))
@@ -113,6 +154,7 @@ class DFA():
 		for i in self.nodes:
 			i.show()	
 		print('')
+
 
 	def test(self,test_string):
 		current_node   = self.start
@@ -124,15 +166,18 @@ class DFA():
 		if current_node in self.accept:
 			print(test_string,'Valid String')
 
+
 	def label_list(self):
 		outString = ''
 		for node in self.nodes:
 			outString += node.label + " "
 		return outString
 
+
 	def print_transistions(self):
 		for node in self.nodes:
 			print(node.a_t().label+' '+node.b_t().label)
+
 
 	def encode_print(self):
 		print(len(self.nodes))
@@ -144,6 +189,7 @@ class DFA():
 		print(len(self.accept))
 		print(' '.join(self.accept_labels))
 		print('')
+
 
 def menu():
 	print("DFA functionality program")
@@ -159,26 +205,27 @@ def menu():
 				print('A. Complement')
 				print('B. Intersection')
 				print('C. Symetric Difference')
+				print('D. Test Non emptyness')
+				print('E. Test Equivalence of 2 FA\'s')
 				# Add here when needed
 				user_choice = str(input('> ')).upper()
-				if user_choice not in ['A','B','C']:
+				if user_choice not in ['A','B','C','D','E']:
 					print('Invlid input please retry')
 				else:
 					break
 
 	if input_type == 'D':
-		print("Loading machine information")
 		machine_one,machine_two = get_machine_info("D1","D2")
 		DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
-		for FA in DFAs:
-			FA.show()
+		# for FA in DFAs:
+		# 	FA.show()
+
 	else:
 		# If time implement checking using against array of subprocess (ls *.txt)
 		print("Finding the intersection of two given FA's please do not include .txt at the end of the filename")
 		first  = str(input("First file name: "))
 		second = str(input("Second file name: "))
 
-		print("Loading machine information")
 		machine_one,machine_two = get_machine_info(first,second)
 		DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
 		for FA in DFAs:
@@ -190,15 +237,10 @@ def menu():
 		task_two(DFAs)
 	if user_choice == 'C':
 		task_three(DFAs)
-
-
-	# DFAs[0].test('aba')
-	# DFAs[1].test('abbbbbbbba')
-
-	# task_one(DFAs)
-	# task_two_part_one(DFAs)
-	# task_two_part_two()
-	
+	if user_choice == 'D':
+		task_four(DFAs)
+	if user_choice == 'E':
+		task_five(DFAs)
 
 def task_one(DFAs):
 	print('\nStarting task 1 Complementation\n')
@@ -210,123 +252,132 @@ def task_one(DFAs):
 
 
 def task_two(DFAs):
-	Intersection = combine('I', DFAs)
+	Intersection = intersection(DFAs)
 	print("Machine for the Intersection of the FA's:")
 	Intersection.encode_print()
 
 
 def task_three(DFAs):
-	machine_one, machine_two = DFAs
-	# On the right track with the combinational, maybe check and do by hadn first
-	# axax probably shouldn't be a node
+	SymDif = symetric_difference(DFAs)
+	print('Machine for the Symetric Difference: ')
+	SymDif.encode_print()
 
-	first  = combine('I',[compliment(machine_one), machine_two])
-	second = combine('I',[machine_one, compliment(machine_two)])
-	full   = combine('U',[first,second])
 
-	first.show()
-	second.show()
-	full.show()
+def task_four(DFAs):
+	machine_one,machine_two = DFAs
+	for i in DFAs:
+		print('Testing is DFA has a language')
+		out = non_emptyness(i)
+		if out != None:
+			print('Found accepted string',out)
+		else:
+			print('language empty')
+
+
+def task_five(DFAs):
+	machine_one,machine_two = DFAs
+	SymDif = symetric_difference(DFAs)
+	accepted_string = non_emptyness(SymDif)
+	if accepted_string != None:
+		print('Machines are not equvialent, found string',accepted_string,'which is only valid for 1 machine')
+
 
 def compliment(FA):
 	compliment_machine = copy.deepcopy(FA)
 	compliment_machine.invert_accept_states()
 	return compliment_machine
 
-
-def combine(I_or_U, DFAs):
-	# I_or_U is intersection ou union.
+def symetric_difference(DFAs):
 	machine_one, machine_two = DFAs
-	# Takes the two input FA's and then makes hybrid nodes for them combined, eg: ax,ay,az,bx,by,bz
-	# I am calling the first letter pre and the second suf.
-	alphabet = machine_one.get_alphabet() #assumes machines use the same alphabet
+	first  = intersection([compliment(machine_one),machine_two])
+	second = intersection([machine_one, compliment(machine_two)])
+	SymDif = union([first,second])
+	return SymDif
+
+
+def union(DFAs):
+	machine_one, machine_two = DFAs
+	nodes_to_change = machine_two.get_accept_states()
+	for i in nodes_to_change:
+		machine_one.set_accept(i)
+	return machine_one
+
+
+def intersection(DFAs):
+	machine_one, machine_two = DFAs
 	Combined_FA = []
 	transistions = []
 
 	for pre in machine_one.get_all_nodes():
 		for suf in machine_two.get_all_nodes():
-			if I_or_U == 'I':
-				creating_node = node((pre.get_label()+suf.get_label()), (pre.is_start() == suf.is_start() == True), (pre.is_accept() == suf.is_accept() == True))
-			else:
-				creating_node = node((pre.get_label()+suf.get_label()), (pre.is_start() == suf.is_start() == True), (pre.is_accept() or suf.is_accept()))
+			creating_node = node((pre.get_label()+suf.get_label()), (pre.is_start() == suf.is_start() == True), (pre.is_accept() == suf.is_accept() == True))
 			transistions.append(pre.a_t().get_label()+suf.a_t().get_label()+' '+pre.b_t().get_label()+suf.b_t().get_label())
 			Combined_FA.append(creating_node)
 
-	Combined_FA = DFA(Combined_FA, alphabet)
+	Combined_FA = DFA(Combined_FA, machine_one.get_alphabet())
 
 	for n in Combined_FA.get_all_nodes():
 		t = transistions.pop(0).split(' ')
 		n.set_transistions([Combined_FA.get_node(t[0]),Combined_FA.get_node(t[1])])
+		Combined_FA.get_node(t[0]).found()
+		Combined_FA.get_node(t[1]).found()
 
 	Combined_FA.setup()
+
+	unreachable_nodes = []
+	for n in Combined_FA.get_all_nodes():
+		if (n.is_reachable() == False) and (n.is_start() == False):
+			unreachable_nodes.append(n)
+
+	for i in unreachable_nodes:
+		Combined_FA.delete(i)
+
 	return Combined_FA
 
 
-def current_testing():
-	machine_one,machine_two = get_machine_info("D1","D2")
-	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
-	for FA in DFAs:
-		FA.show()
-	new = combine('U',DFAs)
-	new.show()
-	new2 = combine('U',[DFAs[0],new])
-	new2.show()
+def non_emptyness(FA):
+	outString = ''
+	node = FA.get_start()
+	route = [node]
+	visited = []
 
+	if node.is_accept():
+		return 'e'
 
-# This whole section needs rewiritng
-# Note to self just graph traversal worry about string later
-# Just work on getting the depth / bredth seacrh wrokign first
+	count = 10
+	while count != 0:
+		count -= 1
 
-# def non_emptyness():
-# 	machine_one,machine_two = get_machine_info("D1","D2")
-# 	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
+		if node not in visited:
+			visited.append(node)
 
-# 	FA = combine('I',DFAs)
+		next = node.a_t()
+		if next.is_accept():
+			outString += 'a'
+			return outString
+		if next not in visited:
+			route.append(next)
+			node = next
+			outString += 'a'
+			continue
 
-# 	nodes = [FA.get_start()]
-# 	visited = []
+		next = node.b_t()
+		if next.is_accept():
+			outString += 'b'
+			return outString
+		if next not in visited:
+			route.append(next)
+			node = next
+			outString += 'b'
+			continue
 
-# 	while len(nodes) != 0:
-# 		node = nodes.pop(0)
-# 		a,b = node.get_transistions()
-# 		print(a.get_label(),b.get_label())
-
-# 		if (a.is_accept() or b.is_accept()):
-# 			return True
-# 		print('not accept states')
-
-# 		if a not in visited:
-# 			visited.append(a)
-# 			nodes.append(a)
-# 		if b not in visited:
-# 			nodes.append(b)
-# 			visited.append(b)
-# 		d_print('nodes',nodes)
-# 		d_print('visit',visited)
-# 	print()
-
-# 	for i in visited:
-# 		print(i.get_label())
-
-
-# def d_print(label,a_list):
-# 	outString = ''
-# 	for i in a_list:
-# 		outString += i.get_label() +' '
-# 	print(label+': '+outString)
-
-
-
-
-
-
-
-
+		else:
+			outString = outString[:-1]
+			node = route.pop(-2)
+			continue
 
 
 if __name__ == '__main__':
-	# current_testing()
-	# menu()
-	print(non_emptyness())
+	menu()
 
 		
