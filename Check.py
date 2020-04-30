@@ -207,7 +207,6 @@ def menu():
 				print('C. Symetric Difference')
 				print('D. Test Non emptyness')
 				print('E. Test Equivalence of 2 FA\'s')
-				# Add here when needed
 				user_choice = str(input('> ')).upper()
 				if user_choice not in ['A','B','C','D','E']:
 					print('Invlid input please retry')
@@ -228,8 +227,8 @@ def menu():
 
 		machine_one,machine_two = get_machine_info(first,second)
 		DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
-		for FA in DFAs:
-			FA.show()
+		# for FA in DFAs:
+		# 	FA.show()
 
 	if user_choice == 'A':
 		task_one(DFAs)
@@ -266,12 +265,13 @@ def task_three(DFAs):
 def task_four(DFAs):
 	machine_one,machine_two = DFAs
 	for i in DFAs:
-		print('Testing is DFA has a language')
+		print('Testing if DFA has a possible accept string')
 		out = non_emptyness(i)
 		if out != None:
 			print('Found accepted string',out)
 		else:
 			print('language empty')
+		print()
 
 
 def task_five(DFAs):
@@ -280,12 +280,15 @@ def task_five(DFAs):
 	accepted_string = non_emptyness(SymDif)
 	if accepted_string != None:
 		print('Machines are not equvialent, found string',accepted_string,'which is only valid for 1 machine')
+	else:
+		print('Machines are both Equivalent')
 
 
 def compliment(FA):
 	compliment_machine = copy.deepcopy(FA)
 	compliment_machine.invert_accept_states()
 	return compliment_machine
+
 
 def symetric_difference(DFAs):
 	machine_one, machine_two = DFAs
@@ -336,6 +339,7 @@ def intersection(DFAs):
 
 
 def non_emptyness(FA):
+	start = FA.get_start()
 	outString = ''
 	node = FA.get_start()
 	route = [node]
@@ -344,10 +348,7 @@ def non_emptyness(FA):
 	if node.is_accept():
 		return 'e'
 
-	count = 10
-	while count != 0:
-		count -= 1
-
+	while True:
 		if node not in visited:
 			visited.append(node)
 
@@ -372,12 +373,29 @@ def non_emptyness(FA):
 			continue
 
 		else:
+			if node == start:
+				break
 			outString = outString[:-1]
 			node = route.pop(-2)
 			continue
+
+
+def test():
+	machine_one,machine_two = get_machine_info(first,second)
+	DFAs = [create_DFA(machine_one),create_DFA(machine_two)]
+
 
 
 if __name__ == '__main__':
 	menu()
 
 		
+
+
+
+
+
+
+
+
+
